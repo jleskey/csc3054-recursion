@@ -19,7 +19,7 @@ buffer:     .space  BUFFER_SIZE
 main:
     la      a0, n_label                     # a0: prompt for n
     jal     inputInt                        # a0: value of n
-    blt     a0, 0, exit                     # Exit on negative value of n.
+    blt     a0, zero, exit                  # Exit on negative value of n.
     jal     sumSeries                       # Add the series up to n (a0).
     jal     printInt                        # Print the sum (a0).
 
@@ -39,7 +39,7 @@ sumSeries:
 
     lw      ra, 4(sp)                       # Restore previous return address.
     lw      t0, 0(sp)                       # Restore given value of n.
-    addi    a0, t0, a0                      # Add n + sumSeries(n - 1)
+    add    a0, t0, a0                       # Add n + sumSeries(n - 1)
 
     sumSeriesExit:
         ret
