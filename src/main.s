@@ -6,13 +6,9 @@
 .equ    BUFFER_SIZE,    12                  # int + newline + null character
 
 .section .rodata
-intro_equation:     .asciz  "Equation:\n\n\tf = a + b - c\n\n"
-intro_inputs:       .asciz  "Inputs:\n\n"
-prompt_a:           .asciz  "\tlet a = "
-prompt_b:           .asciz  "\tlet b = "
-prompt_c:           .asciz  "\tlet c = "
-intro_results:      .asciz  "\nResult:\n\n\tf = "
-end:                .asciz  "\n\n"
+n_label:    .asciz  "n: "
+sum_label:  .asciz  "\t\tSum: "
+end:        .asciz  "\n"
 
 .data
 buffer:     .space  BUFFER_SIZE
@@ -21,37 +17,32 @@ buffer:     .space  BUFFER_SIZE
 .global main
 
 main:
-    la      a0, intro_equation              # a0: equation intro string pointer
-    jal     print
+    la      a0, n_label                     # a0: prompt for n
+    jal     inputInt                        # a0: value of n
+    blt     a0, 0, exit                     # Exit on negative value of n.
+    jal     sumSeries                       # Add the series up to n (a0).
+    jal     printInt                        # Print the sum (a0).
 
-    la      a0, intro_inputs                # a0: inputs intro string pointer
-    jal     print
+# int sumSeries : Return sum of integers between 1 and n (inclusive)
+# a0 <int value> : the integer
+sumSeries:
+    li      t0, 1                           # t0: 1
+    beqz    a0, sumSeriesExit               # Base case: n = 0
+    beq     a0, t0, sumSeriesExit           # Base case: n = 1
 
-    la      a0, prompt_a                    # a0: input a prompt string pointer
-    jal     inputInt
+    addi    sp, sp, -8                      # Prepare stack for 2 registers.
+    sw      ra, 4(sp)                       # Place the return address last.
+    sw      a0, 0(sp)                       # Place the value of n first.
 
-    mv      s3, a0                          # s3: value of a
+    addi    a0, a0, -1                      # a0: n - 1
+    jal     sumSeries                       # a0: value of sumSeries(n - 1)
 
-    la      a0, prompt_b                    # a0: input b prompt string pointer
-    jal     inputInt
+    lw      ra, 4(sp)                       # Restore previous return address.
+    lw      t0, 0(sp)                       # Restore given value of n.
+    addi    a0, t0, a0                      # Add n + sumSeries(n - 1)
 
-    add     s3, s3, a0                      # s3: value of (a + b)
-
-    la      a0, prompt_c                    # a0: input c prompt string pointer
-    jal     inputInt
-
-    sub     s3, s3, a0                      # s3: value of (a + b - c)
-
-    la      a0, intro_results               # a0: results intro string pointer
-    jal     print
-
-    mv      a0, s3                          # a0: value of (a + b - c)
-    jal     printInt
-
-    la      a0, end                         # a0: closing string pointer
-    jal     print
-
-    j       exit
+    sumSeriesExit:
+        ret
 
 # int printInt : Print given integer as a string
 # a0 <int value> : the integer
