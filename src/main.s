@@ -7,7 +7,7 @@
 
 .section .rodata
 n_label:    .asciz  "n: "
-sum_label:  .asciz  "\t\tSum: "
+sum_label:  .asciz  "\tSum: "
 end:        .asciz  "\n"
 
 .data
@@ -18,10 +18,22 @@ buffer:     .space  BUFFER_SIZE
 
 main:
     la      a0, n_label                     # a0: prompt for n
-    jal     inputInt                        # a0: value of n
-    blt     a0, zero, exit                  # Exit on negative value of n.
+    jal     inputInt
+    mv      s2, a0                          # s2: value of n
+
+    blt     s2, zero, exit                  # Exit on negative value of n.
+
+    la      a0, sum_label                   # a0: sum label
+    jal     print
+
+    mv      a0, s2                          # a0: value of n
     jal     sumSeries                       # Add the series up to n (a0).
     jal     printInt                        # Print the sum (a0).
+
+    la      a0, end                         # a0: newline
+    jal     print
+
+    j       main                            # Continue main loop.
 
 # int sumSeries : Return sum of integers between 1 and n (inclusive)
 # a0 <int value> : the integer
@@ -34,12 +46,14 @@ sumSeries:
     sw      ra, 4(sp)                       # Place the return address last.
     sw      a0, 0(sp)                       # Place the value of n first.
 
-    addi    a0, a0, -1                      # a0: n - 1
+    addi    a0, a0, -1                      # a0: value of (n - 1)
     jal     sumSeries                       # a0: value of sumSeries(n - 1)
 
     lw      ra, 4(sp)                       # Restore previous return address.
-    lw      t0, 0(sp)                       # Restore given value of n.
-    add    a0, t0, a0                       # Add n + sumSeries(n - 1)
+    lw      t0, 0(sp)                       # t0: value of n
+
+    addi    sp, sp, 8                       # Free memory allocated on stack.
+    add     a0, t0, a0                      # Add n + sumSeries(n - 1)
 
     sumSeriesExit:
         ret
