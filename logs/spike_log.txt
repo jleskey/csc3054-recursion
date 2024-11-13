@@ -1,0 +1,43 @@
+Last login: Wed Nov 13 01:12:30 on ttys001
+joseph@LJ-L23 ~ % ssh joseph@10.105.48.62
+Last login: Wed Nov 13 01:11:29 EST 2024 from 10.105.48.41 on ssh
+Have a lot of fun...
+joseph@localhost:~> cd csc3054-recursion/
+joseph@localhost:~/csc3054-recursion> riscv64-elf-gcc -o bin/sum_series src/main.s 
+joseph@localhost:~/csc3054-recursion> spike /usr/local/riscv64-elf/bin/pk bin/sum_series 
+n: 0
+	Sum: 0
+n: 1
+	Sum: 1
+n: 2
+	Sum: 3
+n: 3
+	Sum: 6
+n: 4
+	Sum: 10
+n: 5
+	Sum: 15
+n: 6
+	Sum: 21
+n: 7
+	Sum: 28
+n: 8
+	Sum: 36
+n: 9
+	Sum: 45
+n: 10
+	Sum: 55
+n: -1
+joseph@localhost:~/csc3054-recursion> python3 -c "for n in range(11): print(f'{n * (1 + n) / 2:.0f}')"
+0
+1
+3
+6
+10
+15
+21
+28
+36
+45
+55
+joseph@localhost:~/csc3054-recursion> 
